@@ -5,6 +5,7 @@ import java.util.Random;
 import com.sola.instagram.InstagramSession;
 import com.sola.instagram.auth.AccessToken;
 import com.sola.instagram.auth.InstagramAuthentication;
+import com.sola.instagram.io.Scopes.Scope;
 import com.sola.instagram.model.Media;
 import com.sola.instagram.model.Relationship;
 import com.sola.instagram.model.User;
@@ -49,7 +50,7 @@ public class InstagramSessionTest {
 		String authUrl = auth.setRedirectUri("your_redirect_url")
 		                     .setClientSecret("your_app_secrect")
 		                     .setClientId("your_client_id")
-		                     .setScope("comments+likes")
+		                     .addScope(Scope.COMMENTS).addScope(Scope.LIKES)
 		                     .getAuthorizationUri();	
 		System.out.print(authUrl);
 	}

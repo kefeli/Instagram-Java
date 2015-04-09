@@ -23,6 +23,15 @@ package com.sola.instagram;
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.sola.instagram.auth.AccessToken;
 import com.sola.instagram.exception.InstagramException;
 import com.sola.instagram.io.APIMethod;
@@ -30,18 +39,15 @@ import com.sola.instagram.io.DeleteMethod;
 import com.sola.instagram.io.GetMethod;
 import com.sola.instagram.io.PostMethod;
 import com.sola.instagram.io.UriFactory;
-import com.sola.instagram.model.*;
+import com.sola.instagram.model.Comment;
+import com.sola.instagram.model.Location;
+import com.sola.instagram.model.Media;
+import com.sola.instagram.model.Relationship;
+import com.sola.instagram.model.Tag;
+import com.sola.instagram.model.User;
 import com.sola.instagram.util.PaginatedCollection;
 import com.sola.instagram.util.PaginationIterator;
 import com.sola.instagram.util.UriConstructor;
-
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
 
 /**
  * Constains a methods used to interact with the API.
@@ -94,8 +100,11 @@ public class InstagramSession {
 	 * @param userId
 	 *            id of the user
 	 * @return The user with the id passed
+	 * @throws IOException 
+	 * @throws JSONException 
+	 * @throws InstagramException 
 	 */
-	public User getUserById(int userId) throws Exception {
+	public User getUserById(int userId) throws InstagramException, JSONException, IOException{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("user_id", userId);
 		String uri = uriConstructor.constructUri(UriFactory.Users.GET_DATA, map, true);
@@ -104,7 +113,7 @@ public class InstagramSession {
 			return new User(userObject.getJSONObject("data"), getAccessToken());
 		} else {
 			throw new InstagramException("User with id = " + userId
-					+ " cannot be accessed" + " or may not exist");
+					+ " cannot be accessed" + " or may not exist","UserException");
 		}
 	}
 
@@ -114,11 +123,13 @@ public class InstagramSession {
 	 * 
 	 * @param userId
 	 *            id of the user
-	 * @throws Exception,  JSONException
 	 * @return List of recent media published by the user, within the page
 	 *         number passed
+	 * @throws IOException 
+	 * @throws JSONException 
+	 * @throws InstagramException 
 	 */
-	public PaginatedCollection<Media> getRecentPublishedMedia(int userId) throws Exception {
+	public PaginatedCollection<Media> getRecentPublishedMedia(int userId) throws InstagramException, JSONException, IOException {
 		HashMap<String, Object> map  = new HashMap<String, Object>();
 		map.put("user_id", userId);
 		String uri = uriConstructor.constructUri(UriFactory.Users.GET_RECENT_MEDIA, map, true);
@@ -138,10 +149,12 @@ public class InstagramSession {
 	/**
 	 * Gets the recent media in the current user's feed
 	 * 
-	 * @throws Exception,  JSONException
 	 * @return List of recent media in the current user's feed
+	 * @throws IOException 
+	 * @throws JSONException 
+	 * @throws InstagramException 
 	 */
-	public PaginatedCollection<Media> getFeed() throws Exception {	
+	public PaginatedCollection<Media> getFeed() throws InstagramException, JSONException, IOException  {	
 		String uri = uriConstructor.constructUri (UriFactory.Users.GET_FEED, null, true);
 		ArrayList<Media> media = new ArrayList<Media>();
 		PaginationIterator<Media> iterator =  new PaginationIterator<Media>(media, uri) {
@@ -158,10 +171,12 @@ public class InstagramSession {
 	/**
 	 * Gets the recent media that the current user has liked. 
 	 * 
-	 * @throws Exception,  JSONException
 	 * @return List of recent media that the current user has liked
+	 * @throws IOException 
+	 * @throws InstagramException 
+	 * @throws JSONException
 	 */
-	public PaginatedCollection<Media> getLikedMedia() throws Exception {
+	public PaginatedCollection<Media> getLikedMedia() throws JSONException, InstagramException, IOException{
 		String uri = uriConstructor.constructUri(UriFactory.Users.GET_LIKED_MEDIA, null, true);
 		ArrayList<Media> media = new ArrayList<Media>();
 		PaginationIterator<Media> iterator =  new PaginationIterator<Media>(media, uri) {
@@ -181,10 +196,12 @@ public class InstagramSession {
 	 * 
 	 * @param mediaId
 	 *            the id of the media to be returned
-	 * @throws Exception,  JSONException
 	 * @return The media with the id passed
+	 * @throws IOException 
+	 * @throws JSONException 
+	 * @throws InstagramException 
 	 */
-	public Media getMedia(String mediaId) throws Exception {
+	public Media getMedia(String mediaId) throws InstagramException, JSONException, IOException{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("media_id", mediaId);
 		String uri =  uriConstructor.constructUri(UriFactory.Media.GET_MEDIA, map, true);
@@ -207,11 +224,13 @@ public class InstagramSession {
 	 *            needed.
 	 * @param distance
 	 *            the of the location. Can be null if needed.
-	 * @throws Exception,  JSONException
 	 * @return List of recent media that meet the search parameters
+	 * @throws IOException 
+	 * @throws JSONException 
+	 * @throws InstagramException 
 	 */
 	public List<Media> searchMedia(Object latitude, Object longitude,
-			Object minTimestamp, Object maxTimestamp, Object distance) throws Exception {
+			Object minTimestamp, Object maxTimestamp, Object distance) throws InstagramException, JSONException, IOException{
 		ArrayList<Media> media = new ArrayList<Media>();
 		String uri = UriFactory.Media.SEARCH_MEDIA + "?access_token="
 				+ getAccessToken() + "&lat=" + latitude + "&lng=" + longitude
@@ -228,10 +247,12 @@ public class InstagramSession {
 	/**
 	 * Finds and returns the most popular media on instagram.
 	 * 
-	 * @throws Exception,  JSONException
 	 * @return List of the most popular media on instagram.
+	 * @throws IOException 
+	 * @throws JSONException 
+	 * @throws InstagramException 
 	 */
-	public List<Media> getPopularMedia() throws Exception {
+	public List<Media> getPopularMedia() throws InstagramException, JSONException, IOException{
 		ArrayList<Media> media = new ArrayList<Media>();
 		String uri = uriConstructor.constructUri(UriFactory.Media.GET_POPULAR_MEDIA, null, true);
 		JSONObject object = (new GetMethod().setMethodURI(uri)).call().getJSON();
@@ -247,10 +268,12 @@ public class InstagramSession {
 	 * 
 	 * @param name
 	 *            the full name or username of the user to be returned
-	 * @throws Exception,  JSONException
 	 * @return List of users who match the search criteria
+	 * @throws IOException 
+	 * @throws InstagramException 
+	 * @throws JSONException 
 	 */
-	public List<User> searchUsersByName(String name) throws Exception {
+	public List<User> searchUsersByName(String name) throws JSONException, InstagramException, IOException{
 		ArrayList<User> users = new ArrayList<User>();
 		String uri = uriConstructor.constructUri(UriFactory.Users.SEARCH_USER_BY_NAME, null, true)
 					 + "&q=" + name;
@@ -268,11 +291,13 @@ public class InstagramSession {
 	 * 
 	 * @param userId
 	 *            id of the user whose follow list is to be returned
-	 * @throws Exception,  JSONException
 	 * @return List of users by page, that the user, whose id is passed,
 	 *         follows.
+	 * @throws IOException 
+	 * @throws JSONException 
+	 * @throws InstagramException 
 	 */
-	public PaginatedCollection<User> getFollows(int userId) throws Exception {
+	public PaginatedCollection<User> getFollows(int userId) throws InstagramException, JSONException, IOException{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("user_id", userId);
 		String uri = uriConstructor.constructUri(UriFactory.Relationships.GET_FOLLOWS, map, true);
@@ -288,7 +313,7 @@ public class InstagramSession {
 		return new PaginatedCollection<User>(users, iterator);		
 	}
 
-	public PaginatedCollection<User> getFollowers(int userId) throws Exception {
+	public PaginatedCollection<User> getFollowers(int userId) throws InstagramException, JSONException, IOException {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("user_id", userId);
 		String uri = uriConstructor.constructUri(UriFactory.Relationships.GET_FOLLOWERS, map, true);
@@ -304,7 +329,7 @@ public class InstagramSession {
 		return new PaginatedCollection<User>(users, iterator);
 	}
 
-	public List<User> getFollowRequests() throws Exception {
+	public List<User> getFollowRequests() throws JSONException, InstagramException, IOException{
 		ArrayList<User> users = new ArrayList<User>();
 		String uri = uriConstructor.constructUri(UriFactory.Relationships.GET_FOLLOW_REQUESTS, null, true);
 		JSONObject object     = (new GetMethod(uri)).call().getJSON();
@@ -315,7 +340,7 @@ public class InstagramSession {
 		return users;
 	}
 
-	public Relationship getRelationshipWith(int userId) throws Exception {
+	public Relationship getRelationshipWith(int userId) throws InstagramException, JSONException, IOException{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("user_id", userId);
 		String uri = uriConstructor.constructUri(UriFactory.Relationships.GET_RELATIONSHIP_STATUS, map, true);
@@ -323,8 +348,7 @@ public class InstagramSession {
 		return new Relationship(object.getJSONObject("data"), getAccessToken());
 	}
 
-	public boolean modifyRelationship(int userId, Relationship.Action action)
-			throws Exception {
+	public boolean modifyRelationship(int userId, Relationship.Action action) throws JSONException, IOException, InstagramException {
 		String actionString = "";
 		HashMap<String, Object> map  = new HashMap<String, Object>();
 		HashMap<String, Object> args = new HashMap<String, Object>();
@@ -354,11 +378,11 @@ public class InstagramSession {
 		args.put("action", actionString);
 		String uri = uriConstructor.constructUri(UriFactory.Relationships.MUTATE_RELATIONSHIP, map, true);
 		PostMethod post   = (new PostMethod(uri)).setPostParameters(args);
-		JSONObject object = post.call().getJSON();
-		return object.getJSONObject("meta").getInt("code") == 200;
+		post.call().getJSON();
+		return true;
 	}
 
-	public Comment postComment(String mediaId, String text) throws Exception {
+	public Comment postComment(String mediaId, String text) throws InstagramException, JSONException, IOException{
 		HashMap<String, Object> map  = new HashMap<String, Object>();
 		HashMap<String, Object> args = new HashMap<String, Object>();
 		map.put("media_id", mediaId);
@@ -370,34 +394,34 @@ public class InstagramSession {
 		return new Comment(object.getJSONObject("data"), getAccessToken());
 	}
 
-	public boolean removeComment(String mediaId, String commentId) throws Exception {
+	public boolean removeComment(String mediaId, String commentId) throws InstagramException, JSONException, IOException{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("media_id", mediaId);
 		map.put("comment_id", commentId);
 		String uri = uriConstructor.constructUri(UriFactory.Comments.DELETE_MEDIA_COMMENT, map, true);
-		JSONObject object = (new DeleteMethod(uri)).call().getJSON();
-		return object.getJSONObject("meta").getInt("code") == 200;
+		(new DeleteMethod(uri)).call().getJSON();
+		return true;
 	}
 
-	public boolean likeMedia(String mediaId) throws Exception, JSONException {
+	public boolean likeMedia(String mediaId) throws JSONException, InstagramException, IOException {
 		HashMap<String, Object> map  = new HashMap<String, Object>();
 		HashMap<String, Object> args = new HashMap<String, Object>();
 		map.put("media_id", mediaId);
 		args.put("access_token", getAccessToken());
 		String uri = uriConstructor.constructUri(UriFactory.Likes.SET_LIKE, map, false);
-		JSONObject object = (new PostMethod(uri).setPostParameters(args)).call().getJSON();
-		return object.getJSONObject("meta").getInt("code") == 200;
+		(new PostMethod(uri).setPostParameters(args)).call().getJSON();
+		return true;
 	}
 
-	public boolean removeMediaLike(String mediaId) throws Exception {
+	public boolean removeMediaLike(String mediaId) throws InstagramException, JSONException, IOException{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("media_id", mediaId);
 		String uri = uriConstructor.constructUri(UriFactory.Likes.REMOVE_LIKE, map, true);
-		JSONObject object = (new DeleteMethod(uri)).call().getJSON();
-		return object.getJSONObject("meta").getInt("code") == 200;
+		(new DeleteMethod(uri)).call().getJSON();
+		return true;
 	}
 
-	public Tag getTag(String tagName) throws Exception {
+	public Tag getTag(String tagName) throws InstagramException, JSONException, IOException {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("tag_name", tagName);
 		String uri = uriConstructor.constructUri(UriFactory.Tags.GET_TAG, map, true);
@@ -405,7 +429,7 @@ public class InstagramSession {
 		return new Tag(object.getJSONObject("data"), getAccessToken());
 	}
 
-	public PaginatedCollection<Media> getRecentMediaForTag(String tagName) throws Exception {
+	public PaginatedCollection<Media> getRecentMediaForTag(String tagName) throws InstagramException, JSONException, IOException{
 		tagName = tagName.replaceAll("^#*", "");
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("tag_name", tagName);
@@ -422,7 +446,7 @@ public class InstagramSession {
 		return new PaginatedCollection<Media>(media, iterator);
 	}
 
-	public List<Tag> searchTags(String tagName) throws Exception {
+	public List<Tag> searchTags(String tagName) throws JSONException, InstagramException, IOException{
 		String uri = uriConstructor.constructUri(UriFactory.Tags.SEARCH_TAGS, null, true) 
 				     + "&q=" + tagName;
 		JSONObject object   = (new GetMethod(uri)).call().getJSON();
@@ -434,7 +458,7 @@ public class InstagramSession {
 		return tags;
 	}
 
-	public Location getLocation(int locationId) throws Exception {
+	public Location getLocation(int locationId) throws InstagramException, JSONException, Exception{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("location_id", locationId);
 		String uriString = uriConstructor.constructUri(UriFactory.Locations.GET_LOCATION, map, true);
@@ -442,7 +466,7 @@ public class InstagramSession {
 		return new Location(object.getJSONObject("data"), getAccessToken());
 	}
 
-	public PaginatedCollection<Media> getRecentMediaFromLocation(int locationId) throws Exception {
+	public PaginatedCollection<Media> getRecentMediaFromLocation(int locationId) throws InstagramException, JSONException, IOException{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("location_id", locationId);
 		String uriString = uriConstructor.constructUri(UriFactory.Locations.GET_MEDIA_FROM_LOCATION, map, true);

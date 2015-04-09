@@ -1,18 +1,18 @@
 package com.sola.instagram.auth;
 
-import com.sola.instagram.InstagramSession;
-import com.sola.instagram.auth.AccessToken;
-import com.sola.instagram.exception.InstagramException;
-import com.sola.instagram.io.PostMethod;
-import com.sola.instagram.io.UriFactory;
-import com.sola.instagram.model.User;
-import com.sola.instagram.util.UriConstructor;
-
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.sola.instagram.exception.InstagramException;
+import com.sola.instagram.io.PostMethod;
+import com.sola.instagram.io.Scopes;
+import com.sola.instagram.io.Scopes.Scope;
+import com.sola.instagram.io.UriFactory;
+import com.sola.instagram.model.User;
+import com.sola.instagram.util.UriConstructor;
 
 public class InstagramAuthentication {
 	String redirectUri;
@@ -20,14 +20,12 @@ public class InstagramAuthentication {
 	String clientSecret;
 	AccessToken accessToken;
 	User sessionUser;
-	String scope = "basic";
-	
-	public String getScope() {
-		return scope;
-	}
 
-	public InstagramAuthentication setScope(String scope) {
-		this.scope = scope;
+	private String getScope() {
+		return Scopes.getInstance().toString();
+	}
+	public InstagramAuthentication addScope(Scope scope) {
+		Scopes.getInstance().addScope(scope);
 		return this;
 	}
 
@@ -52,7 +50,8 @@ public class InstagramAuthentication {
 	public String getAuthorizationUri() throws InstagramException {
 		if (getClientId() == null || getRedirectUri() == null) {
 			throw new InstagramException("Please make sure that the "
-					+ "clientId and redirectUri fields are set");
+					+ "clientId and redirectUri fields are set",
+					"Invalid Configuration");
 		}
 		HashMap<String, Object> args = new HashMap<String, Object>();
 		args.put("client_id", getClientId());
@@ -63,34 +62,32 @@ public class InstagramAuthentication {
 				UriFactory.Auth.USER_AUTHORIZATION, args, false);
 	}
 
-	public AccessToken build(String code) throws Exception {
+
+
+	public AccessToken build(String code) throws InstagramException, JSONException, IOException{
 		if (getClientSecret() == null || getClientId() == null
 				|| getRedirectUri() == null) {
 			throw new InstagramException("Please make sure that the"
-					+ "clientId, clientSecret and redirectUri fields are set");
+					+ "clientId, clientSecret and redirectUri fields are set",
+					"Invalid Configuration");
 		}
 		HashMap<String, Object> postArgs = new HashMap<String, Object>();
 		postArgs.put("client_id", getClientId());
 		postArgs.put("client_secret", getClientSecret());
 		postArgs.put("grant_type", "authorization_code");
 		postArgs.put("redirect_uri", getRedirectUri());
-		if(getScope() != null && getScope() != "" ) {
+		if (getScope() != null && getScope() != "") {
 			postArgs.put("scope", getScope());
 		}
 		postArgs.put("code", code);
 
-		
-		  JSONObject response = (new PostMethod() .setPostParameters(postArgs)
-		  .setMethodURI(UriFactory.Auth.GET_ACCESS_TOKEN) ).call().getJSON();
-		 
-		try {
-			setAccessToken(new
-					AccessToken(response.getString("access_token")));
-			 setSessionUser(new User(response.getJSONObject("user"),
-					 getAccessToken().getTokenString()));
-		} catch (Exception e) {
-			throw new InstagramException("JSON parsing error");
-		}
+		JSONObject response = (new PostMethod().setPostParameters(postArgs)
+				.setMethodURI(UriFactory.Auth.GET_ACCESS_TOKEN)).call()
+				.getJSON();
+
+		setAccessToken(new AccessToken(response.getString("access_token")));
+		setSessionUser(new User(response.getJSONObject("user"),
+				getAccessToken().getTokenString()));
 		return getAccessToken();
 	}
 
@@ -98,7 +95,8 @@ public class InstagramAuthentication {
 		if (accessToken == null)
 			throw new InstagramException(
 					"Token has not been fetched, please call build(String code) "
-							+ "before calling getAccessToken()");
+							+ "before calling getAccessToken()",
+					"AccessTokenException");
 		else
 			return accessToken;
 	}
@@ -109,8 +107,8 @@ public class InstagramAuthentication {
 
 	public User getAuthenticatedUser() throws InstagramException {
 		if (accessToken == null)
-			throw new InstagramException(
-					"No user has been authenticated yet");
+			throw new InstagramException("No user has been authenticated yet",
+					"OAuthException");
 		else
 			return sessionUser;
 	}

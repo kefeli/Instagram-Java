@@ -24,6 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -362,8 +363,11 @@ public class Media extends InstagramModel {
     /**
      * Lazy-loads and returns a list of comments for this media
      * @return A list of lazy-loaded comments for this media 
+     * @throws IOException 
+     * @throws JSONException 
+     * @throws InstagramException 
      */
-	public List<Comment> getComments() throws Exception {
+	public List<Comment> getComments() throws InstagramException, JSONException, IOException{
 		if(comments == null) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("media_id", getId());
@@ -497,8 +501,10 @@ public class Media extends InstagramModel {
     /**
      * Lazy-Loads and returns a list of users who have liked this media
      * @return A lazy-loaded list of users who have liked this media
+     * @throws IOException 
+     * @throws InstagramException 
      */
-	public List<User> getLikers() throws Exception {
+	public List<User> getLikers() throws InstagramException, IOException{
 		if(likers == null) {
 			try {
 				HashMap<String, Object> map = new HashMap<String, Object>();
@@ -513,7 +519,7 @@ public class Media extends InstagramModel {
 				setLikers(likers);
 				
 			} catch(JSONException e) {
-				throw new InstagramException("JSON parsing error");
+				throw new InstagramException("JSON parsing error","JSONException");
 			}
 		}
 		return likers;

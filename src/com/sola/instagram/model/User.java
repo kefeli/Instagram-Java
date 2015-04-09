@@ -1,9 +1,11 @@
 package com.sola.instagram.model;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.json.JSONObject;
 import org.json.JSONException;	
 
+import com.sola.instagram.exception.InstagramException;
 import com.sola.instagram.io.GetMethod;
 import com.sola.instagram.io.UriFactory;
 import com.sola.instagram.util.UriConstructor;
@@ -74,7 +76,7 @@ public class User extends InstagramModel {
 		this.profilePictureURI = profilePictureURI;
 	}
 	
-	public String getBio() throws Exception {
+	public String getBio() throws InstagramException, JSONException, IOException {
 		if(bio == null) {
 			refreshObject();
 		}
@@ -85,7 +87,7 @@ public class User extends InstagramModel {
 		this.bio = bio;
 	}
 	
-	public String getWebsite() throws Exception {
+	public String getWebsite() throws InstagramException, JSONException, IOException{
 		if(website == null) {
 			refreshObject();
 		}
@@ -96,7 +98,7 @@ public class User extends InstagramModel {
 		this.website = website;
 	}
 	
-	public int getMediaCount() throws Exception {
+	public int getMediaCount() throws InstagramException, JSONException, IOException {
 		if(this.followingCount == -1) 
 			refreshObject();
 		return mediaCount;
@@ -106,7 +108,7 @@ public class User extends InstagramModel {
 		this.mediaCount = mediaCount;
 	}
 
-	public int getFollowerCount() throws Exception {
+	public int getFollowerCount() throws InstagramException, JSONException, IOException{
 		if(this.followerCount == -1) 
 			refreshObject();
 		return followerCount;
@@ -116,7 +118,7 @@ public class User extends InstagramModel {
 		this.followerCount = followerCount;
 	}
 	
-	public int getFollowingCount() throws Exception {
+	public int getFollowingCount() throws InstagramException, JSONException, IOException{
 		if(this.followingCount == -1) 
 			refreshObject();
 		return followingCount;
@@ -126,7 +128,7 @@ public class User extends InstagramModel {
 		this.followingCount = followingCount;
 	}
 	
-	private void refreshObject() throws Exception {
+	private void refreshObject() throws InstagramException, JSONException, IOException{
 		UriConstructor uriConstructor = new UriConstructor(getAccessToken());
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("user_id", getId());

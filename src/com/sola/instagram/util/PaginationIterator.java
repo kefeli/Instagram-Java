@@ -1,5 +1,6 @@
 package com.sola.instagram.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -7,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.sola.instagram.exception.InstagramException;
 import com.sola.instagram.io.GetMethod;
 
 public class PaginationIterator<E> implements Iterator<E> {
@@ -14,7 +16,7 @@ public class PaginationIterator<E> implements Iterator<E> {
 	protected ArrayList<E> list;
 	protected int index = 0;
 	
-	public PaginationIterator(ArrayList<E> list, String nextUri) throws Exception {
+	public PaginationIterator(ArrayList<E> list, String nextUri) throws InstagramException, JSONException, IOException{
 		this.list = list;
 		this.nextUri = nextUri;
 		if(list.size() == 0) fetch();
@@ -41,7 +43,7 @@ public class PaginationIterator<E> implements Iterator<E> {
 		// not implenting this	
 	}
 
-	public void fetch() throws Exception {
+	public void fetch() throws InstagramException, JSONException, IOException{
 		if(paginationComplete()) return;
 		JSONObject object = (new GetMethod().setMethodURI(nextUri))
 				.call().getJSON();

@@ -28,7 +28,13 @@ public class UriConstructor {
 		try{
 			for (Map.Entry<String, Object> arg : map.entrySet()) {
 				String key = URLEncoder.encode(arg.getKey(), "UTF-8");
-				String value = URLEncoder.encode(arg.getValue().toString(), "UTF-8");
+				String value;
+				if(!key.equals("scope"))
+				{
+					value = URLEncoder.encode(arg.getValue().toString(), "UTF-8");
+				}else{
+					value =arg.getValue().toString();
+				}
 				uri = uri.replaceAll("\\{"+ key + "\\}", value);
 			}
 		}
